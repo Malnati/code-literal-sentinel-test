@@ -22,7 +22,7 @@ jobs:
       # --------------------------------------------------------
       - name: Run Code Literal Sentinel
         id: sentinel
-        uses: Malnati/code-literal-sentinel@v1.0.0
+        uses: Malnati/code-literal-sentinel@v1.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           output_file: "audit/detected_literals.txt" # Testando caminho customizado
