@@ -58,3 +58,34 @@ jobs:
         with:
           name: raw-literals-index
           path: ${{ steps.sentinel.outputs.index_path }}
+
+      # Passo de Comentário (Consumindo o JSON do Sentinel)
+      - name: Report Findings
+        uses: Malnati/pr-comment@v6.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.pull_request.number }}
+          message_id: "literal-sentinel-report"
+          
+          header_title: "👁️ Code Literal Sentinel"
+          header_subject: "Análise de Qualidade"
+          header_actor: "github-actions[bot]"
+          
+          # Usa a mensagem e cor decididas pelo Sentinel
+          body_message: |
+            ### ${{ fromJson(steps.sentinel.outputs.result_json).ui.message }}
+            
+            ${{ fromJson(steps.sentinel.outputs.result_json).ui.guidance }}
+            
+            <details>
+            <summary>Ver Detalhes (Raw Index)</summary>
+            
+            O arquivo completo foi anexado aos artefatos desta execução.
+            Total de ocorrências: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.total_findings }}
+            
+            </details>
+          
+          # Resultado visual no rodapé
+          footer_result: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' && '⚠️ Análise Necessária' || '✅ Limpo' }}
+          
+          footer_advise: "Verifique se estes valores devem ir para variáveis de ambiente."
