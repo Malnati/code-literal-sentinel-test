@@ -6,8 +6,8 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
-  pull-requests: write # Permissão adicionada
+  contents: write       # <--- NECESSÁRIO PARA CRIAR BRANCH E COMMIT
+  pull-requests: write  # <--- NECESSÁRIO PARA ABRIR PR E COMENTAR
 
 jobs:
   lab-test:
@@ -16,57 +16,35 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Importante para o histórico do git
 
-      # 1. Roda o Scanner
-      - name: Run Code Literal Sentinel
+      # 1. Roda o Sentinel (Gera a PR de relatório)
+      - name: Run Sentinel
         id: sentinel
         uses: Malnati/code-literal-sentinel@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          output_file: "audit/detected_literals.txt"
+          # Opcional: customizar diretório
+          report_dir: "reports/audit"
 
-      # 2. Debug (Opcional, mas útil)
-      - name: Inspect Outputs
-        run: |
-          echo "::group::🔍 JSON Payload"
-          echo '${{ steps.sentinel.outputs.result_json }}' | jq .
-          echo "::endgroup::"
-
-      # 3. Upload do Artefato
-      - name: Upload Index Artifact
-        if: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: raw-literals-index
-          path: ${{ steps.sentinel.outputs.index_path }}
-
-      # 4. Comentar na PR (Integration Test)
-      - name: Report Findings
+      # 2. Notifica na PR original com Template Rico
+      - name: Notify
         uses: Malnati/pr-comment@v6.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ github.event.pull_request.number }}
-          message_id: "literal-sentinel-report"
+          template_path: .github/workflows/pr-comment-sentinel.md # <--- NOVO TEMPLATE
+          message_id: "sentinel-report"
           
           header_title: "👁️ Code Literal Sentinel"
-          header_subject: "Análise de Qualidade"
+          header_subject: "Relatório de Auditoria"
           header_actor: "github-actions[bot]"
           
-          # Renderiza a mensagem dinâmica gerada pelo Sentinel
+          # O Sentinel v2 retorna a mensagem e o link já formatados no JSON
           body_message: |
             ### ${{ fromJson(steps.sentinel.outputs.result_json).ui.message }}
             
             ${{ fromJson(steps.sentinel.outputs.result_json).ui.guidance }}
-            
-            <details>
-            <summary>Ver Detalhes (Raw Index)</summary>
-            
-            O arquivo completo foi anexado aos artefatos desta execução.
-            Total de ocorrências: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.total_findings }}
-            
-            </details>
           
-          footer_result: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' && '⚠️ Análise Necessária' || '✅ Limpo' }}
-          
-          footer_advise: "Verifique se estes valores devem ir para variáveis de ambiente."
+          footer_result: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' && '⚠️ Revisão Necessária' || '✅ Código Limpo' }}
+          footer_advise: "Siga o link acima para ver os detalhes."
