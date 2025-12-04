@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write # Permissão adicionada
 
 jobs:
   lab-test:
@@ -15,43 +16,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # CRÍTICO: Necessário para o git diff funcionar corretamente
+          fetch-depth: 0
 
-      # --------------------------------------------------------
-      # EXECUÇÃO DA ACTION
-      # --------------------------------------------------------
+      # 1. Roda o Scanner
       - name: Run Code Literal Sentinel
         id: sentinel
         uses: Malnati/code-literal-sentinel@v1.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          output_file: "audit/detected_literals.txt" # Testando caminho customizado
-          # file_extensions: "js|ts|py" # Opcional: testar filtros se quiser
+          output_file: "audit/detected_literals.txt"
 
-      # --------------------------------------------------------
-      # DEBUG: VERIFICAR OUTPUTS (O que a IA receberia)
-      # --------------------------------------------------------
+      # 2. Debug (Opcional, mas útil)
       - name: Inspect Outputs
         run: |
-          echo "::group::🔍 JSON Payload (GITHUB_OUTPUT)"
+          echo "::group::🔍 JSON Payload"
           echo '${{ steps.sentinel.outputs.result_json }}' | jq .
           echo "::endgroup::"
 
-          echo "::group::📄 File Content Preview"
-          FILE_PATH="${{ steps.sentinel.outputs.index_path }}"
-          
-          if [ -f "$FILE_PATH" ]; then
-            echo "Arquivo encontrado em: $FILE_PATH"
-            echo "-----------------------------------"
-            cat "$FILE_PATH"
-          else
-            echo "Nenhum arquivo de índice foi gerado (Status: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status }})."
-          fi
-          echo "::endgroup::"
-
-      # --------------------------------------------------------
-      # ARTEFATO: DISPONIBILIZAR PARA DOWNLOAD
-      # --------------------------------------------------------
+      # 3. Upload do Artefato
       - name: Upload Index Artifact
         if: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' }}
         uses: actions/upload-artifact@v4
@@ -59,7 +41,7 @@ jobs:
           name: raw-literals-index
           path: ${{ steps.sentinel.outputs.index_path }}
 
-      # Passo de Comentário (Consumindo o JSON do Sentinel)
+      # 4. Comentar na PR (Integration Test)
       - name: Report Findings
         uses: Malnati/pr-comment@v6.1.0
         with:
@@ -71,7 +53,7 @@ jobs:
           header_subject: "Análise de Qualidade"
           header_actor: "github-actions[bot]"
           
-          # Usa a mensagem e cor decididas pelo Sentinel
+          # Renderiza a mensagem dinâmica gerada pelo Sentinel
           body_message: |
             ### ${{ fromJson(steps.sentinel.outputs.result_json).ui.message }}
             
@@ -85,7 +67,6 @@ jobs:
             
             </details>
           
-          # Resultado visual no rodapé
           footer_result: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' && '⚠️ Análise Necessária' || '✅ Limpo' }}
           
           footer_advise: "Verifique se estes valores devem ir para variáveis de ambiente."
