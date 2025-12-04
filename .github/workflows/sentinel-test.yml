@@ -21,7 +21,7 @@ jobs:
       # 1. Roda o Sentinel (Gera a PR de relatório)
       - name: Run Sentinel
         id: sentinel
-        uses: Malnati/code-literal-sentinel@v2.1.1
+        uses: Malnati/code-literal-sentinel@v2.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Opcional: customizar diretório
