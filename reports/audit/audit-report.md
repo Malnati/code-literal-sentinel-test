@@ -1,8 +1,8 @@
 # 🛡️ Code Literal Audit
-> **Data:** Thu Dec  4 21:34:57 UTC 2025
+> **Data:** Thu Dec  4 21:39:16 UTC 2025
 
 ```text
-src/bad-code.js:4:const API_KEY = "sk-1234567890abcdef1234567890abcdef";
+src/bad-code.js:4:const API_KEY = "sk-1234567890abcdef1234567890abcdefp";
 src/bad-code.js:5:const DB_PASSWORD = 'super-secret-password-123';
 src/bad-code.js:9:    if (status === "error") return "#ff0000";
 src/bad-code.js:10:    if (status === "success") return "#00ff00";
