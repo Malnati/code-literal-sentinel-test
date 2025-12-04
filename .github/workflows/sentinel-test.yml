@@ -1,0 +1,60 @@
+# .github/workflows/sentinel-test.yml
+name: "Sentinel Lab"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  lab-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # CRÍTICO: Necessário para o git diff funcionar corretamente
+
+      # --------------------------------------------------------
+      # EXECUÇÃO DA ACTION
+      # --------------------------------------------------------
+      - name: Run Code Literal Sentinel
+        id: sentinel
+        uses: Malnati/code-literal-sentinel@v1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          output_file: "audit/detected_literals.txt" # Testando caminho customizado
+          # file_extensions: "js|ts|py" # Opcional: testar filtros se quiser
+
+      # --------------------------------------------------------
+      # DEBUG: VERIFICAR OUTPUTS (O que a IA receberia)
+      # --------------------------------------------------------
+      - name: Inspect Outputs
+        run: |
+          echo "::group::🔍 JSON Payload (GITHUB_OUTPUT)"
+          echo '${{ steps.sentinel.outputs.result_json }}' | jq .
+          echo "::endgroup::"
+
+          echo "::group::📄 File Content Preview"
+          FILE_PATH="${{ steps.sentinel.outputs.index_path }}"
+          
+          if [ -f "$FILE_PATH" ]; then
+            echo "Arquivo encontrado em: $FILE_PATH"
+            echo "-----------------------------------"
+            cat "$FILE_PATH"
+          else
+            echo "Nenhum arquivo de índice foi gerado (Status: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status }})."
+          fi
+          echo "::endgroup::"
+
+      # --------------------------------------------------------
+      # ARTEFATO: DISPONIBILIZAR PARA DOWNLOAD
+      # --------------------------------------------------------
+      - name: Upload Index Artifact
+        if: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-literals-index
+          path: ${{ steps.sentinel.outputs.index_path }}
