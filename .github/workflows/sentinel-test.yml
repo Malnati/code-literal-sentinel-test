@@ -48,3 +48,51 @@ jobs:
           
           footer_result: ${{ fromJson(steps.sentinel.outputs.result_json).analysis.status == 'FOUND' && '⚠️ Revisão Necessária' || '✅ Código Limpo' }}
           footer_advise: "Siga o link acima para ver os detalhes."
+            
+      # --------------------------------------------------------
+      # 3. DEBUG (Mantivemos para você ver o log)
+      # --------------------------------------------------------
+      - name: Inspect Engine Outputs
+        run: |
+          echo "::group::🔍 Engine Outputs"
+          echo "Status: ${{ steps.ops.outputs.status }}"
+          echo "URL: ${{ steps.ops.outputs.pr_url }}"
+          echo "::endgroup::"
+  
+      # --------------------------------------------------------
+      # 4. NOTIFICAÇÃO (Visual Profissional)
+      # --------------------------------------------------------
+      - name: Notify User
+        # Comenta se publicou (PUBLISHED) ou se detectou que já existe (SKIPPED_IDEMPOTENT)
+        if: steps.ops.outputs.status == 'PUBLISHED' || steps.ops.outputs.status == 'SKIPPED_IDEMPOTENT'
+        uses: Malnati/pr-comment@v6.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.pull_request.number }}
+          # Aponta para o novo template
+          template_path: .github/workflows/pr-comment-ops.md 
+          # ID único para atualizar o mesmo comentário sempre
+          message_id: "ops-engine-report" 
+          
+          header_title: "⚙️ Git Report Ops"
+          header_subject: "Status de Publicação"
+          header_actor: "github-actions[bot]"
+          
+          # Montagem da Tabela HTML para o corpo da mensagem
+          body_message: |
+            <div align="center">
+            
+            | 📡 Status da Operação | 🔗 Acesso ao Relatório |
+            | :---: | :---: |
+            | **${{ steps.ops.outputs.status == 'PUBLISHED' && '✅ Publicado/Atualizado' || '⏸️ Sem alterações' }}** | **[Ver Pull Request de Relatório](${{ steps.ops.outputs.pr_url }})** |
+            
+            </div>
+            
+            <br>
+            
+            > **Detalhes Técnicos:**
+            > * **Status Code:** `${{ steps.ops.outputs.status }}`
+            > * **Engine:** `Malnati/git-report-ops@v1`
+          
+          footer_result: ${{ steps.ops.outputs.status == 'PUBLISHED' && '✅ Sucesso' || 'ℹ️ Idempotente' }}
+          footer_advise: "Clique no link da tabela para revisar o conteúdo."
