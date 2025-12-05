@@ -46,18 +46,20 @@ jobs:
       # --------------------------------------------------------
       - name: 📢 Publish via Ops Engine
         id: ops
-        uses: Malnati/git-report-ops@v1.1.0
+        uses: Malnati/git-report-ops@v1.1.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_file: "artifacts/dummy_report.md"
           
-          # Personalização da PR de destino
+          # --- CONFIGURAÇÃO DE UI DA PR ---
           report_branch_prefix: "ops/dummy-report"
-          pr_title: "🧪 Teste de Integração: Ops Engine"
-          pr_body: "Este é um relatório fictício para validar a action Malnati/git-report-ops."
+          pr_title: "🧪 Relatório de Integração: Ops Engine"
           
-          # Configurações de assinatura (Opcional, usando defaults neste teste)
-          # scan_extensions: ...
+          # Caminho para o novo template que acabamos de criar
+          pr_template_path: .github/workflows/pr-body-report.md
+          
+          # O conteúdo desta variável substitui o ${USER_BODY} dentro do template
+          pr_body: "Este relatório contém dados fictícios gerados durante o teste automatizado do workflow."
 
       # --------------------------------------------------------
       # 3. DEBUG: Ver o que a Engine retornou
