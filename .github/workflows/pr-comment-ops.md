@@ -1,12 +1,22 @@
 <!-- .github/workflows/pr-comment-ops.md -->
 ## ${TITLE}
 
-> [!TIP]
-> **Relatório de Infraestrutura Gerado**
->
-> A engine `git-report-ops` processou os artefatos desta execução e publicou o resultado em uma branch dedicada para manter o histórico limpo e auditável.
+> [!WARNING]
+> **⚠️ Atenção Requerida**
+> O sistema detectou padrões no código que exigem revisão (possíveis segredos, URLs ou valores hardcoded).
 
-${BODY_MESSAGE}
+<div align="center">
 
+| 📊 Diagnóstico | 📝 Ação Recomendada |
+| :--- | :--- |
+| **${BODY_MESSAGE}** | **Verificar link abaixo** 👇 |
+
+</div>
+
+### 🔗 Acesso ao Relatório Detalhado
+O relatório completo foi isolado para não poluir esta revisão.
+Acesse a Pull Request de Auditoria para comentar linha a linha:
+
+${BODY_MESSAGE_LINK_PLACEHOLDER} 
 ---
 ${FOOTER_BLOCK}
