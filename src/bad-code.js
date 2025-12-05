@@ -8,7 +8,7 @@ const DB_PASSWORD = 'super-secret-password-123';
 function getStatusColor(status) {
     if (status === "error") return "#ff0000" ;
     if (status === "success") return "#00ff00";
-    return "#cccccc";
+    return "#cccccc" ;
 }
 
 // URLs Hardcoded
