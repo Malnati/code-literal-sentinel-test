@@ -1,3 +1,4 @@
+# .github/workflows/ops-test.yml
 name: "🐙 Git Ops Lab"
 
 on:
@@ -67,27 +68,41 @@ jobs:
           echo "Status: ${{ steps.ops.outputs.status }}"
           echo "URL: ${{ steps.ops.outputs.pr_url }}"
           echo "::endgroup::"
-
+          
       # --------------------------------------------------------
       # 4. NOTIFICAÇÃO (Consumindo os outputs da Engine)
       # --------------------------------------------------------
       - name: 🔔 Notify User
-        # Só comenta se houve publicação ou atualização. Ignora se foi skipped (idempotente/loop).
         if: steps.ops.outputs.status == 'PUBLISHED'
         uses: Malnati/pr-comment@v6.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ github.event.pull_request.number }}
-          message_id: "ops-engine-test"
           
+          # --- ADICIONE ESTA LINHA AQUI ---
+          template_path: .github/workflows/pr-comment-ops.md
+          # --------------------------------
+          
+          message_id: "ops-engine-test"
           header_title: "⚙️ Git Report Ops"
           header_subject: "Teste de Publicação"
           header_actor: "github-actions[bot]"
           
+          # Como o template já tem a tabela e o Tip, aqui passamos apenas os dados
+          # Ou podemos passar a tabela aqui se o template esperar ${BODY_MESSAGE}
           body_message: |
-            A engine publicou o relatório com sucesso.
+            <div align="center">
             
-            > **Status:** `${{ steps.ops.outputs.status }}`
+            | 📡 Status da Operação | 🔗 Acesso ao Relatório |
+            | :---: | :---: |
+            | **${{ steps.ops.outputs.status == 'PUBLISHED' && '✅ Publicado/Atualizado' || '⏸️ Sem alterações' }}** | **[Ver Pull Request de Relatório](${{ steps.ops.outputs.pr_url }})** |
+            
+            </div>
+            
+            <br>
+            
+            > **Detalhes Técnicos:**
+            > * **Status Code:** `${{ steps.ops.outputs.status }}`
           
           footer_result: ✅ Sucesso
-          footer_advise: "[Clique aqui para ver o Relatório](${{ steps.ops.outputs.pr_url }})"
+          footer_advise: "Clique no link da tabela para revisar o conteúdo."
