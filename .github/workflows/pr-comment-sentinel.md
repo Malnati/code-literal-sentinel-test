@@ -2,12 +2,21 @@
 ## ${TITLE}
 
 > [!WARNING]
-> **Detecção de Literais Hardcoded**
->
-> O Sentinela encontrou padrões no código que podem ser segredos, URLs ou valores mágicos.
-> Um relatório detalhado foi gerado em uma **Pull Request dedicada** para facilitar a análise isolada (humana ou IA).
+> **⚠️ Atenção Requerida**
+> O sistema detectou padrões no código que exigem revisão (possíveis segredos, URLs ou valores hardcoded).
 
-${BODY_MESSAGE}
+<div align="center">
 
+| 📊 Diagnóstico | 📝 Ação Recomendada |
+| :--- | :--- |
+| **${BODY_MESSAGE}** | **Verificar link abaixo** 👇 |
+
+</div>
+
+### 🔗 Acesso ao Relatório Detalhado
+O relatório completo foi isolado para não poluir esta revisão.
+Acesse a Pull Request de Auditoria para comentar linha a linha:
+
+${BODY_MESSAGE_LINK_PLACEHOLDER} 
 ---
 ${FOOTER_BLOCK}
