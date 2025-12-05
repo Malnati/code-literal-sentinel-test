@@ -1,3 +1,4 @@
+# .github/workflows/ops-test.yml
 name: "🐙 Git Ops Lab"
 
 on:
@@ -78,6 +79,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ github.event.pull_request.number }}
+          template_path: .github/workflows/pr-comment-ops.md
           message_id: "ops-engine-test"
           
           header_title: "⚙️ Git Report Ops"
