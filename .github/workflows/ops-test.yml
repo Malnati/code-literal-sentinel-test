@@ -1,4 +1,4 @@
-name: "Git Ops Lab"
+name: "🐙 Git Ops Lab"
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ jobs:
       # 1. SIMULAÇÃO: Gerar um relatório fake
       # Em um caso real, aqui rodaria o ESLint, PyTest, etc.
       # --------------------------------------------------------
-      - name: Generate Dummy Report
+      - name: 📋 Generate Dummy Report
         run: |
           mkdir -p artifacts
           REPORT_FILE="artifacts/dummy_report.md"
@@ -43,7 +43,7 @@ jobs:
       # --------------------------------------------------------
       # 2. EXECUÇÃO DA ENGINE (Git Report Ops)
       # --------------------------------------------------------
-      - name: Publish via Ops Engine
+      - name: 📢 Publish via Ops Engine
         id: ops
         uses: Malnati/git-report-ops@v1.0.0
         with:
@@ -61,7 +61,7 @@ jobs:
       # --------------------------------------------------------
       # 3. DEBUG: Ver o que a Engine retornou
       # --------------------------------------------------------
-      - name: Inspect Engine Outputs
+      - name: 🔎 Inspect Engine Outputs
         run: |
           echo "::group::🔍 Engine Outputs"
           echo "Status: ${{ steps.ops.outputs.status }}"
@@ -71,7 +71,7 @@ jobs:
       # --------------------------------------------------------
       # 4. NOTIFICAÇÃO (Consumindo os outputs da Engine)
       # --------------------------------------------------------
-      - name: Notify User
+      - name: 🔔 Notify User
         # Só comenta se houve publicação ou atualização. Ignora se foi skipped (idempotente/loop).
         if: steps.ops.outputs.status == 'PUBLISHED'
         uses: Malnati/pr-comment@v6.1.0
