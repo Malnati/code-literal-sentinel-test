@@ -14,5 +14,5 @@ function getStatusColor(status) {
 // URLs Hardcoded
 const endpoint = "https://api.production.com/v1/users";
 
-// Mensagens de usuário (Falso positivo aceitável para a IA filtrar depois)
+// Mensagens de usuário (Falso positivo aceitável para a IA filtrar depois)q
 const welcomeMsg = "Bem-vindo ao sistema v2.0";
