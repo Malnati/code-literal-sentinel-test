@@ -2,11 +2,18 @@
 ## ${TITLE}
 
 > [!TIP]
-> **Relatório de Infraestrutura Gerado**
->
-> A engine `git-report-ops` processou os artefatos desta execução e publicou o resultado em uma branch dedicada para manter o histórico limpo e auditável.
+> **Infraestrutura GitOps**
+> Um relatório técnico foi gerado e versionado automaticamente.
 
-${BODY_MESSAGE}
+<div align="center">
+
+| 📡 Status | 📄 Relatório Gerado |
+| :---: | :---: |
+| **${BODY_STATUS}** | 👉 **[Acessar Auditoria](${BODY_URL})** |
+
+</div>
 
 ---
-${FOOTER_BLOCK}
+<div align="right">
+  <sub>Processado por <b>Git Report Ops</b></sub>
+</div>
