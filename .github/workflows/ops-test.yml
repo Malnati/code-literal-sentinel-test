@@ -1,0 +1,93 @@
+name: "Git Ops Lab"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write       # Necessário para a Engine fazer push
+  pull-requests: write  # Necessário para a Engine abrir PR e o Comment postar
+
+jobs:
+  engine-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # CRÍTICO: A engine precisa disso para verificar histórico e evitar loops
+
+      # --------------------------------------------------------
+      # 1. SIMULAÇÃO: Gerar um relatório fake
+      # Em um caso real, aqui rodaria o ESLint, PyTest, etc.
+      # --------------------------------------------------------
+      - name: Generate Dummy Report
+        run: |
+          mkdir -p artifacts
+          REPORT_FILE="artifacts/dummy_report.md"
+          
+          echo "# 🧪 Relatório de Teste da Engine" > "$REPORT_FILE"
+          echo "Este arquivo foi gerado dinamicamente para testar o **git-report-ops**." >> "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "## Dados do Contexto" >> "$REPORT_FILE"
+          echo "- **Data:** $(date)" >> "$REPORT_FILE"
+          echo "- **Commit:** ${{ github.sha }}" >> "$REPORT_FILE"
+          echo "- **Runner:** ${{ runner.os }}" >> "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "## Simulação de Erros" >> "$REPORT_FILE"
+          echo "- ⚠️ Erro simulado na linha 42" >> "$REPORT_FILE"
+          echo "- ✅ Teste passou na linha 88" >> "$REPORT_FILE"
+          
+          echo "Report gerado em: $REPORT_FILE"
+
+      # --------------------------------------------------------
+      # 2. EXECUÇÃO DA ENGINE (Git Report Ops)
+      # --------------------------------------------------------
+      - name: Publish via Ops Engine
+        id: ops
+        uses: Malnati/git-report-ops@v1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          report_file: "artifacts/dummy_report.md"
+          
+          # Personalização da PR de destino
+          report_branch_prefix: "ops/dummy-report"
+          pr_title: "🧪 Teste de Integração: Ops Engine"
+          pr_body: "Este é um relatório fictício para validar a action Malnati/git-report-ops."
+          
+          # Configurações de assinatura (Opcional, usando defaults neste teste)
+          # scan_extensions: ...
+
+      # --------------------------------------------------------
+      # 3. DEBUG: Ver o que a Engine retornou
+      # --------------------------------------------------------
+      - name: Inspect Engine Outputs
+        run: |
+          echo "::group::🔍 Engine Outputs"
+          echo "Status: ${{ steps.ops.outputs.status }}"
+          echo "URL: ${{ steps.ops.outputs.pr_url }}"
+          echo "::endgroup::"
+
+      # --------------------------------------------------------
+      # 4. NOTIFICAÇÃO (Consumindo os outputs da Engine)
+      # --------------------------------------------------------
+      - name: Notify User
+        # Só comenta se houve publicação ou atualização. Ignora se foi skipped (idempotente/loop).
+        if: steps.ops.outputs.status == 'PUBLISHED'
+        uses: Malnati/pr-comment@v6.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.pull_request.number }}
+          message_id: "ops-engine-test"
+          
+          header_title: "⚙️ Git Report Ops"
+          header_subject: "Teste de Publicação"
+          header_actor: "github-actions[bot]"
+          
+          body_message: |
+            A engine publicou o relatório com sucesso.
+            
+            > **Status:** `${{ steps.ops.outputs.status }}`
+          
+          footer_result: ✅ Sucesso
+          footer_advise: "[Clique aqui para ver o Relatório](${{ steps.ops.outputs.pr_url }})"
