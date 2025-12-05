@@ -46,7 +46,7 @@ jobs:
       # --------------------------------------------------------
       - name: 📢 Publish via Ops Engine
         id: ops
-        uses: Malnati/git-report-ops@v1.0.0
+        uses: Malnati/git-report-ops@v1.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_file: "artifacts/dummy_report.md"
