@@ -6,7 +6,7 @@ const DB_PASSWORD = 'super-secret-password-123';
 
 // Magic Strings (O Sentinela deve pegar isso)
 function getStatusColor(status) {
-    if (status === "error") return "#ff0000" ;
+    if (status === "error") return "#ff0000 " ;
     if (status === "success") return "#00ff00";
     return "#cccccc" ;
 } 
