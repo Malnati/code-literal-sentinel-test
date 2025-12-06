@@ -42,7 +42,7 @@ jobs:
       - name: 📢 Publish via Ops Engine
         id: ops
         # ATENÇÃO: Atualizado para a versão com o fix crítico
-        uses: Malnati/git-report-ops@v1.3.1
+        uses: Malnati/git-report-ops@v1.3.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_file: "artifacts/dummy_report.md"
