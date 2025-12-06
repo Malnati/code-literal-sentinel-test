@@ -4,6 +4,8 @@ name: "Sentinel Lab"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+    - nunca
 
 permissions:
   contents: write       # <--- NECESSÁRIO PARA CRIAR BRANCH E COMMIT
